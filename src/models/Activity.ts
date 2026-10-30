@@ -5,13 +5,31 @@ export type ActivityTemplateType =
   | 'match_up'
   | 'spin_wheel'
   | 'open_box'
-  | 'anagram';
+  | 'anagram'
+  | 'categorize'
+  | 'cardsort'
+  | 'memory'
+  | 'wheel'
+  | 'box'
+  | 'truefalse'
+  | 'whack'
+  | 'airplane'
+  | 'balloon'
+  | 'timeline'
+  | 'dragword'
+  | 'wordsearch'
+  | 'race'
+  | 'tower';
 
 export interface IActivityItem {
   id: string;
   question?: string;
+  answer?: string;
   options?: string[];
   correctAnswer?: string | number;
+  image?: string;
+  answerImage?: string;
+  category?: string;
   term?: string;
   definition?: string;
   label?: string;
@@ -23,8 +41,13 @@ export interface IActivity extends Document {
   teacherId: mongoose.Types.ObjectId;
   title: string;
   description?: string;
-  templateType: ActivityTemplateType;
+  templateType: ActivityTemplateType | string;
   items: IActivityItem[];
+  categories?: string[];
+  boxColors?: Record<string, number>;
+  boxImages?: Record<string, string>;
+  subject?: string;
+  gradeLevel?: string;
   timeLimitSeconds?: number;
   maxScore: number;
   status: 'draft' | 'published';
@@ -41,21 +64,29 @@ const activitySchema = new Schema<IActivity>(
     description: { type: String, maxlength: 1000, trim: true },
     templateType: {
       type: String,
-      enum: ['quiz', 'match_up', 'spin_wheel', 'open_box', 'anagram'],
       required: true,
     },
     items: [
       {
         id: { type: String, required: true },
         question: String,
+        answer: String,
         options: [String],
         correctAnswer: Schema.Types.Mixed,
+        image: String,
+        answerImage: String,
+        category: String,
         term: String,
         definition: String,
         label: String,
         points: { type: Number, default: 10 },
       },
     ],
+    categories: [String],
+    boxColors: { type: Schema.Types.Mixed, default: {} },
+    boxImages: { type: Schema.Types.Mixed, default: {} },
+    subject: String,
+    gradeLevel: String,
     timeLimitSeconds: { type: Number, default: 60 },
     maxScore: { type: Number, default: 100 },
     status: { type: String, enum: ['draft', 'published'], default: 'published' },
